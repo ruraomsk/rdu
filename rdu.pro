@@ -24,7 +24,6 @@ SOURCES += \
     view/viewvoronoi.cpp \
     view/viewxctrl.cpp \
     view/voronoi.cpp \
-    viewcross.cpp \
     ../streetBox/xctrl/state.cpp \
     ../streetBox/xctrl/prioryty.cpp \
     ../streetBox/xctrl/xctrl.cpp
@@ -45,7 +44,6 @@ HEADERS += \
     view/viewvoronoi.h \
     view/viewxctrl.h \
     view/voronoi.h \
-    viewcross.h \
     ../streetBox/xctrl/state.h \
     ../streetBox/xctrl/prioryty.h \
     ../streetBox/xctrl/xctrl.h
