@@ -18,7 +18,7 @@ class ViewAreal : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ViewAreal(Project *project,Xctrl *xctrl,QWidget *parent = nullptr);
+    explicit ViewAreal(Xctrl *xctrl,QWidget *parent = nullptr);
     Voronoi *vor;
     ViewVoronoi *voroni;
     void redraw();
@@ -29,7 +29,6 @@ private slots:
     void updateTable();
 
 private:
-    Project *project;
     Xctrl *xctrl;
     ArealTable *stable;
     QTableView *m_view;
@@ -39,7 +38,7 @@ private:
 class ArealTable : public QAbstractTableModel{
     Q_OBJECT
 public:
-    ArealTable(Project *project,Xctrl *xctrl,ViewAreal *parent);
+    ArealTable(Xctrl *xctrl,ViewAreal *parent);
     int rowCount( const QModelIndex& parent ) const;
     int columnCount( const QModelIndex& parent ) const;
     QVariant data( const QModelIndex& index, int role ) const;
@@ -54,8 +53,6 @@ public slots:
 private:
     Xctrl *xctrl;
     ViewAreal *parent;
-    Project *project;
-//    QStringList errors;
 };
 
 #endif // VIEWAREAL_H

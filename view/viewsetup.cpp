@@ -10,6 +10,10 @@ ViewSetup::ViewSetup(QWidget *parent) : QDialog(parent)
     password=new QLineEdit(ini.getString("db/password"));
 
     regionCode=new QLineEdit(QString::number(ini.getInt("region")));
+    viewcross=new QCheckBox("показать");
+    if(ini.getBool("viewcross"))    viewcross->setCheckState(Qt::Checked);
+    else                            viewcross->setCheckState(Qt::Unchecked);
+
     QFormLayout *hbox=new QFormLayout();
     hbox->addRow(new QLabel("Раздел БД"));
     hbox->addRow("IP Сервер",hostname);
@@ -18,6 +22,9 @@ ViewSetup::ViewSetup(QWidget *parent) : QDialog(parent)
     hbox->addRow("Пользователь",username);
     hbox->addRow("Пароль",password);
     hbox->addRow("Код региона",regionCode);
+    hbox->addRow("Перекрестки",viewcross);
+
+
     QPushButton *okBtn=new QPushButton("Изменить");
     connect(okBtn,SIGNAL(clicked()),this,SLOT(moveDataToSetup()));
     hbox->addWidget(okBtn);
@@ -34,6 +41,8 @@ void ViewSetup::moveDataToSetup()
     ini.setString("db/username",username->text());
     ini.setString("db/password",password->text());
     ini.setInt("region",regionCode->text().toInt());
+    if (viewcross->isChecked()) ini.setBool("viewcross",true);
+    else                        ini.setBool("viewcross",false);
     emit accept();
 }
 

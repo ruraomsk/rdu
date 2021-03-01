@@ -15,7 +15,6 @@ ViewCross::ViewCross(Reciver *reciver, Region region)
     table();
     wgraph=new QScrollArea;
     graph();
-    this->show();
 }
 
 void ViewCross::Update()

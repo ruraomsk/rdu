@@ -15,11 +15,16 @@ SOURCES += \
     reciver/xcross.cpp \
     setup.cpp \
     support.cpp \
+    view/bogko.cpp \
+    view/sumgraph.cpp \
     view/viewareal.cpp \
     view/viewcalculate.cpp \
     view/viewcross.cpp \
+    view/viewmessages.cpp \
     view/viewpoints.cpp \
+    view/viewregion.cpp \
     view/viewsetup.cpp \
+    view/viewstate.cpp \
     view/viewstrategy.cpp \
     view/viewvoronoi.cpp \
     view/viewxctrl.cpp \
@@ -35,11 +40,16 @@ HEADERS += \
     reciver/xcross.h \
     setup.h \
     support.h \
+    view/bogko.h \
+    view/sumgraph.h \
     view/viewareal.h \
     view/viewcalculate.h \
     view/viewcross.h \
+    view/viewmessages.h \
     view/viewpoints.h \
+    view/viewregion.h \
     view/viewsetup.h \
+    view/viewstate.h \
     view/viewstrategy.h \
     view/viewvoronoi.h \
     view/viewxctrl.h \

@@ -31,7 +31,7 @@ private:
     QLineEdit *username;
 
     QLineEdit *regionCode;
-
+    QCheckBox *viewcross;
 
 private:
 

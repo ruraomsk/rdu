@@ -16,7 +16,7 @@ class ViewStrategy : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ViewStrategy(Project *project,Xctrl *xctrl,QWidget *parent = nullptr);
+    explicit ViewStrategy(Xctrl *xctrl,QWidget *parent = nullptr);
 
 signals:
     void updated();
@@ -25,7 +25,6 @@ private slots:
     void updateTable();
 
 private:
-    Project *project;
     Xctrl *xctrl;
     StrategyTable *stable;
     QTableView *m_view;
@@ -35,7 +34,7 @@ private:
 class StrategyTable : public QAbstractTableModel{
     Q_OBJECT
 public:
-    StrategyTable(Project *project,Xctrl *xctrl,ViewStrategy *parent);
+    StrategyTable(Xctrl *xctrl,ViewStrategy *parent);
     int rowCount( const QModelIndex& parent ) const;
     int columnCount( const QModelIndex& parent ) const;
     QVariant data( const QModelIndex& index, int role ) const;
@@ -50,8 +49,6 @@ public slots:
 private:
     Xctrl *xctrl;
     ViewStrategy *parent;
-    Project *project;
-//    QStringList errors;
 };
 
 #endif // VIEWSTRATEGY_H

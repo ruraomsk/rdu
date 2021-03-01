@@ -7,9 +7,16 @@
 
 #include "setup.h"
 #include "support.h"
-#include "viewsetup.h"
+#include "view/viewsetup.h"
+#include "view/viewxctrl.h"
 #include "reciver/reciver.h"
-#include "viewcross.h"
+#include "view/viewcross.h"
+#include "view/viewmessages.h"
+#include "view/viewstate.h"
+#include "view/viewregion.h"
+
+
+#include "../streetBox/xctrl/state.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -28,9 +35,11 @@ private slots:
     void loaded();
     void ExitProgramm();
     void SetupEdit();
+    void Restart();
 
 private:
     QMenu *setupMenu;
+    QAction *restart;
     QAction *editSetup;
     QAction *exitAct;
     QTabWidget *tab;

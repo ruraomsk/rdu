@@ -1,34 +1,25 @@
 #include "viewstrategy.h"
 
-ViewStrategy::ViewStrategy(Project *project,Xctrl *xctrl,QWidget *parent) : QWidget(parent)
+ViewStrategy::ViewStrategy(Xctrl *xctrl,QWidget *parent) : QWidget(parent)
 {
-    this->project=project;
     this->xctrl=xctrl;
     QVBoxLayout* mainLayout = new QVBoxLayout;
     setLayout( mainLayout );
 
     m_view = new QTableView;
     //    m_view->horizontalHeader().setResetResizeMode( QHeaderView::Stretch );
-    m_view->setModel( stable = new StrategyTable(this->project,this->xctrl,this) );
+    m_view->setModel( stable = new StrategyTable(this->xctrl,this) );
     connect(stable,SIGNAL(updated()),this,SLOT(updateTable()));
     m_view->resizeColumnsToContents();
     mainLayout->addWidget( m_view );
     QHBoxLayout *panelLayout = new QHBoxLayout;
     mainLayout->addLayout( panelLayout );
-    QPushButton *bnRemove = new QPushButton( "Удалить"  );
-    connect( bnRemove, SIGNAL( clicked() ), this, SLOT( removeSelected() ) );
-    panelLayout->addWidget( bnRemove);
-    QPushButton *bnAdd = new QPushButton( "Добавить"  );
-    connect( bnAdd, SIGNAL( clicked() ), stable, SLOT( addRecord() ) );
-    panelLayout->addWidget( bnAdd);
-//    show();
 }
 
 void ViewStrategy::removeSelected()
 {
     QModelIndex index=m_view->selectionModel()->currentIndex();
     stable->removeSelected(index);
-    project->isChanged=true;
     emit updated();
 }
 
@@ -38,9 +29,8 @@ void ViewStrategy::updateTable()
     return;
 }
 
-StrategyTable::StrategyTable(Project *project, Xctrl *xctrl, ViewStrategy *parent)
+StrategyTable::StrategyTable(Xctrl *xctrl, ViewStrategy *parent)
 {
-    this->project=project;
     this->xctrl=xctrl;
     this->parent=parent;
 
@@ -85,7 +75,6 @@ bool StrategyTable::setData(const QModelIndex &index, const QVariant &value, int
     if( !index.isValid() || role != Qt::EditRole || xctrl->Strategys.size() <= index.row() ) {
         return false;
     }
-    project->isChanged=true;
     switch (index.column()) {
     case 0:
         xctrl->Strategys[index.row()].L=value.toInt();
@@ -170,7 +159,6 @@ void StrategyTable::removeSelected(const QModelIndex &index)
         beginRemoveRows(QModelIndex(),index.row(),index.row());
         xctrl->Strategys.removeAt(index.row());
         endRemoveRows();
-        project->isChanged=true;
         emit updated();
     }
 }
@@ -182,7 +170,6 @@ void StrategyTable::addRecord()
     beginInsertRows(QModelIndex(),row,row);
     xctrl->Strategys.append(s);
     endInsertRows();
-    project->isChanged=true;
     emit updated();
 }
 

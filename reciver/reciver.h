@@ -17,15 +17,21 @@ class Reciver: public QThread
     Q_OBJECT
 public:
     Reciver();
+    ~Reciver();
     void run() override;
     QList<Region> getListCrosses();
+    QList<Region> getListStates();
     Xcross getCross(Region reg);
+    State getState(Region reg);
+    QList<QString> getMessages();
     QString error;
+    void restart();
 signals:
     void loaded();
 private:
     QList<Region> listCrosses;
     QList<Region> listStates;
+    QList<QString> listMessages;
     QMap<QString,Xcross> xcrs;
     QMap<QString,State> sts;
     QMap<QString,Data> datas;
@@ -41,7 +47,9 @@ private:
     void loadAllTables();
     void loadAllStates();
     void loadAllDatas();
-
+    void loadAllMessages();
+    bool needRestart;
+    bool work=false;
     QTcpSocket *socket;
     QMutex mutex;
 };

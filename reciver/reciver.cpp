@@ -16,6 +16,7 @@ Reciver::Reciver()
         error="not connected "+ip+":"+QString::number(port);
         return;
     }
+    work=true;
     socket->write(QString("setup\n").toUtf8());
     socket->flush();
     if (socket->waitForReadyRead(500)){
@@ -44,9 +45,16 @@ Reciver::Reciver()
     while (socket->waitForReadyRead(100)){
         json=json.append(socket->readAll()).trimmed();
     }
+
     loadStates(json);
     loadAllStates();
     loadAllDatas();
+    loadAllMessages();
+}
+
+Reciver::~Reciver()
+{
+    socket->close();
 }
 
 void Reciver::run()
@@ -63,6 +71,7 @@ void Reciver::run()
         loadAllTables();
         loadAllStates();
         loadAllDatas();
+        loadAllMessages();
         emit loaded();
 
     }
@@ -79,6 +88,18 @@ QList<Region> Reciver::getListCrosses()
     return result;
 }
 
+QList<Region> Reciver::getListStates()
+{
+    mutex.lock();
+    QList<Region> result;
+    foreach (auto r, listStates) {
+        result.append(r);
+    }
+    mutex.unlock();
+    return result;
+
+}
+
 Xcross Reciver::getCross(Region reg)
 {
     mutex.lock();
@@ -87,8 +108,36 @@ Xcross Reciver::getCross(Region reg)
     return result;
 }
 
+State Reciver::getState(Region reg)
+{
+    mutex.lock();
+    auto result=sts[reg.toKey()];
+    mutex.unlock();
+    return result;
+
+}
+
+QList<QString> Reciver::getMessages()
+{
+    QList<QString> result;
+    mutex.lock();
+    result=listMessages;
+    mutex.unlock();
+    return result;
+}
+
+void Reciver::restart()
+{
+    mutex.lock();
+        socket->write(QString("restart\n").toUtf8());
+        socket->flush();
+        work=false;
+    mutex.unlock();
+}
+
 void Reciver::loadAllTables()
 {
+    if(!work) return;
     int region=ini.getInt("region");
     mutex.lock();
     foreach (auto r, listCrosses) {
@@ -117,6 +166,7 @@ void Reciver::loadAllTables()
 
 void Reciver::loadAllStates()
 {
+    if(!work) return;
     int region=ini.getInt("region");
     mutex.lock();
     foreach (auto r, listStates) {
@@ -144,6 +194,7 @@ void Reciver::loadAllStates()
 
 void Reciver::loadAllDatas()
 {
+    if(!work) return;
     mutex.lock();
     foreach (auto s, sts) {
         auto reg=Region(s.Region,s.Area,s.SubArea);
@@ -157,8 +208,42 @@ void Reciver::loadAllDatas()
 
 }
 
+void Reciver::loadAllMessages()
+{
+    if(!work) return;
+    mutex.lock();
+        socket->write(QString("messages\n").toUtf8());
+        socket->flush();
+        QString json;
+        while (socket->waitForReadyRead(100)){
+            json=json.append(socket->readAll()).trimmed();
+        }
+        if (json.size()==0) {
+            mutex.unlock();
+            return;
+        }
+        QJsonParseError jError;
+        QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
+        QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
+        if (jError.error!=QJsonParseError::NoError){
+            error=jError.errorString();
+            return;
+        }
+        auto jarray=map["Messages"].toJsonArray();
+        listMessages.clear();
+        foreach(auto j,jarray){
+            listMessages.append(j.toString());
+        }
+//        auto xc=Xcross(map);
+//        xcrs[xc.region.toKey()]=xc;
+
+    mutex.unlock();
+
+}
+
 void Reciver::loadCrosses(QString json)
 {
+    if(!work) return;
     QJsonParseError jError;
     QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
     if (jError.error!=QJsonParseError::NoError){
@@ -174,6 +259,7 @@ void Reciver::loadCrosses(QString json)
 
 void Reciver::loadStates(QString json)
 {
+    if(!work) return;
     QJsonParseError jError;
     QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
     if (jError.error!=QJsonParseError::NoError){
@@ -189,6 +275,7 @@ void Reciver::loadStates(QString json)
 
 void Reciver::loadSetup(QString json)
 {
+    if(!work) return;
     QJsonParseError jError;
     QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
     if (jError.error!=QJsonParseError::NoError){
@@ -206,6 +293,7 @@ void Reciver::loadSetup(QString json)
 Data Reciver::loadOneData(Region region, QString name)
 {
     Data result=Data();
+    if(!work) return result ;
     socket->write(region.dataGet(name).toUtf8());
     socket->flush();
     QString json;

@@ -34,23 +34,40 @@ MainWindow::MainWindow(QWidget *parent)
     editSetup=new QAction(QIcon(":/images/setup.png"),tr("Настройка"),this);
     editSetup->setStatusTip("Изменение настройки программы");
     connect(editSetup, SIGNAL(triggered()), this, SLOT(SetupEdit()));
+    restart=new QAction(tr("Перезапуск XT"),this);
+    restart->setStatusTip("Производится перезапуск расчета");
+    connect(restart, SIGNAL(triggered()), this, SLOT(Restart()));
     exitAct=new QAction(tr("&Выход"),this);
     exitAct->setShortcut((QKeySequence::Quit));
     exitAct->setStatusTip(tr("Завершение программы"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(ExitProgramm()));
 
     setupMenu=menuBar()->addMenu((tr("&Управление")));
+    setupMenu->addAction(restart);
     setupMenu->addAction(editSetup);
     setupMenu->addAction(exitAct);
     region=ini.getInt("region");
     tab=new QTabWidget;
-    auto lcrs=reciver->getListCrosses();
-    foreach (auto cr, lcrs) {
-        if(cr.region==region){
-            auto c=new ViewCross(reciver,cr);
-            tab->addTab(c,cr.toKey());
+    tab->addTab(new ViewRegion(reciver,region=ini.getInt("region")),"Управление");
+    auto lsts=reciver->getListStates();
+    foreach (auto sts, lsts) {
+        if(sts.region==region){
+            auto st=reciver->getState(sts);
+            tab->addTab(new ViewState(reciver,sts),"XT:"+sts.toKey());
         }
     }
+//    tab->addTab(new ViewMessages(reciver),"Сообщения");
+
+    if (ini.getBool("viewcross")){
+        auto lcrs=reciver->getListCrosses();
+        foreach (auto cr, lcrs) {
+            if(cr.region==region){
+                auto c=new ViewCross(reciver,cr);
+                tab->addTab(c,cr.toKey());
+            }
+        }
+    }
+
     setCentralWidget(tab);
     show();
 }
@@ -70,9 +87,21 @@ void MainWindow::loaded()
 {
     for (int i = 0; i < tab->count(); ++i) {
         if (tab->tabText(i).contains("XT:")){
-            qDebug()<<tab->tabText(i);
+            ViewXctrl *ct=static_cast<ViewXctrl*>(tab->widget(i));
+            ct->Update();
             continue;
         }
+//        if (tab->tabText(i).contains("Сообщения")){
+//            ViewMessages *ms=static_cast<ViewMessages*>(tab->widget(i));
+//            ms->Update();
+//            continue;
+//        }
+        if (tab->tabText(i).contains("Управление")){
+            ViewRegion *reg=static_cast<ViewRegion*>(tab->widget(i));
+            reg->Update();
+            continue;
+        }
+
         ViewCross *xc=static_cast<ViewCross*>(tab->widget(i));
         xc->Update();
 
@@ -88,6 +117,15 @@ void MainWindow::SetupEdit()
 {
     ViewSetup vs(this);
     vs.exec();
+
+}
+
+void MainWindow::Restart()
+{
+    reciver->restart();
+    QThread::msleep(10000l);
+    Support::Message("Необходимо перезапустить программу");
+    ExitProgramm();
 
 }
 
