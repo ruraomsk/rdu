@@ -29,8 +29,6 @@ void ViewMessages::table()
     wtable->setColumnCount(2);
     wtable->setHorizontalHeaderItem(0,new QTableWidgetItem("Время"));
     wtable->setHorizontalHeaderItem(1,new QTableWidgetItem("Сообщение"));
-
-    wtable->setMaximumSize(ini.getSize("table/size"));
     for (int row = 0; row < wtable->rowCount(); ++row) {
         wtable->removeRow(row);
     }

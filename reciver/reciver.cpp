@@ -126,6 +126,15 @@ QList<QString> Reciver::getMessages()
     return result;
 }
 
+Data Reciver::getData(Region reg, QString name)
+{
+    Data result;
+    mutex.lock();
+    result=datas[reg.fullKey(name)];
+    mutex.unlock();
+    return result;
+}
+
 void Reciver::restart()
 {
     mutex.lock();

@@ -24,6 +24,7 @@ public:
     Xcross getCross(Region reg);
     State getState(Region reg);
     QList<QString> getMessages();
+    Data getData(Region reg,QString name);
     QString error;
     void restart();
 signals:

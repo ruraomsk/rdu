@@ -16,13 +16,14 @@ SOURCES += \
     setup.cpp \
     support.cpp \
     view/bogko.cpp \
-    view/sumgraph.cpp \
     view/viewareal.cpp \
-    view/viewcalculate.cpp \
+    view/viewcommand.cpp \
     view/viewcross.cpp \
     view/viewmessages.cpp \
     view/viewpoints.cpp \
     view/viewregion.cpp \
+    view/viewresult.cpp \
+    view/viewresultgraph.cpp \
     view/viewsetup.cpp \
     view/viewstate.cpp \
     view/viewstrategy.cpp \
@@ -41,13 +42,14 @@ HEADERS += \
     setup.h \
     support.h \
     view/bogko.h \
-    view/sumgraph.h \
     view/viewareal.h \
-    view/viewcalculate.h \
+    view/viewcommand.h \
     view/viewcross.h \
     view/viewmessages.h \
     view/viewpoints.h \
     view/viewregion.h \
+    view/viewresult.h \
+    view/viewresultgraph.h \
     view/viewsetup.h \
     view/viewstate.h \
     view/viewstrategy.h \

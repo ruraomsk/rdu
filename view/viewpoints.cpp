@@ -83,6 +83,7 @@ QVariant PointsTable::data(const QModelIndex &index, int role) const
 
 bool PointsTable::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    Q_UNUSED(value)
     if( !index.isValid() || role != Qt::EditRole || xctrl->Calculates.size() <= index.row() ) {
         return false;
     }

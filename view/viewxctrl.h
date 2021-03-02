@@ -18,11 +18,11 @@
 #include "viewareal.h"
 #include "viewpoints.h"
 #include "viewstrategy.h"
-#include "viewcalculate.h"
+#include "viewresult.h"
+#include "viewresultgraph.h"
 #include "viewvoronoi.h"
 #include "voronoi.h"
 #include "bogko.h"
-#include "sumgraph.h"
 #include "reciver/reciver.h"
 extern Setup ini;
 
@@ -32,7 +32,7 @@ class ViewXctrl : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ViewXctrl(Reciver *reciver,Xctrl *xctrl,QWidget *parent = nullptr);
+    explicit ViewXctrl(Reciver *reciver,Region region,Xctrl *xctrl,QWidget *parent = nullptr);
     QString getName();
     Xctrl* getXctrl();
     QList<QVector<QString>> getMatrix();
@@ -47,6 +47,7 @@ private:
     void top();
     Reciver *reciver;
     Xctrl *xctrl;
+    Region region;
     QLabel *lname;           //Описание XT
     QLabel *lLeftRel;        //Отношение для прямого направления
     QLabel *lRightRel;        //Отношение для обратного направления
@@ -63,9 +64,8 @@ private:
     QGridLayout *grid;
     ViewStrategy *vstrategy;
     ViewPoints *vpoints;
-    ViewCalculate *vcalc;
-    SumGraph *vsum;
-
+    ViewResult *vresult;
+    ViewResultGraph *vresultgraph;
 };
 
 #endif // VIEWXCTRL_H

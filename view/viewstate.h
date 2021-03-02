@@ -2,8 +2,10 @@
 #define VIEWSTATE_H
 
 #include <QObject>
+#include <QTabWidget>
 #include <QWidget>
 #include "reciver/reciver.h"
+#include "viewxctrl.h"
 class ViewState : public QWidget
 {
     Q_OBJECT
@@ -16,7 +18,9 @@ signals:
 
 private:
     Region region;
-
+    Reciver *reciver;
+    QTabWidget *tab;            //основной виджет редактора
+    State state;
 };
 
 #endif // VIEWSTATE_H

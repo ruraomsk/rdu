@@ -1,9 +1,10 @@
 #include "viewxctrl.h"
 
-ViewXctrl::ViewXctrl(Reciver *reciver,Xctrl *xctrl,QWidget *parent) : QWidget(parent)
+ViewXctrl::ViewXctrl(Reciver *reciver,Region region,Xctrl *xctrl,QWidget *parent) : QWidget(parent)
 {
     this->reciver=reciver;
     this->xctrl=xctrl;
+    this->region=region;
     QWidget *base=new QWidget(this);
     tab=new QTabWidget;
     tab->setTabPosition(QTabWidget::West);
@@ -17,21 +18,24 @@ ViewXctrl::ViewXctrl(Reciver *reciver,Xctrl *xctrl,QWidget *parent) : QWidget(pa
         strates.append(st);
     }
     vor->makeDiagramm();
+    vpoints=new ViewPoints(xctrl);
     voroni=new ViewVoronoi(vor);
     grid->addWidget(voroni,0,2,2,2);
     top();
     grid->addWidget(wtop,0,1);
+    grid->addWidget(vpoints,2,1);
     base->setLayout(grid);
     tab->addTab(base,"Базовые");
-    vpoints=new ViewPoints(xctrl);
-    vcalc=new ViewCalculate(xctrl);
-    vsum=new SumGraph();
     areal=new ViewAreal(xctrl);
-
+    vresult=new ViewResult(reciver,region,xctrl->name);
+    vresultgraph=new ViewResultGraph(reciver,region,xctrl->name);
     tab->addTab(areal,"Области");
-    tab->addTab(vpoints,"Точки");
-    tab->addTab(vcalc,"Расчет");
-    tab->addTab(vsum,"Графики");
+    auto calc=new QWidget();
+    auto local=new QGridLayout();
+    local->addWidget(vresult,0,0);
+    local->addWidget(vresultgraph,0,1);
+    calc->setLayout(local);
+    tab->addTab(calc,"Расчет");
 
     QGridLayout *maingrid=new QGridLayout(this);
     maingrid->addWidget(tab,0,1);
@@ -50,14 +54,11 @@ Xctrl* ViewXctrl::getXctrl()
     return xctrl;
 }
 
-QList<QVector<QString> > ViewXctrl::getMatrix()
-{
-    return vcalc->getMatrix();
-}
 
 void ViewXctrl::Update()
 {
-    qDebug()<<"Update "<<xctrl->name;
+    vresult->Update();
+    update();
 }
 
 
@@ -69,12 +70,6 @@ void ViewXctrl::top()
 {
 #define maxSize 500,100
     wtop=new QWidget;
-//    xctrl->Left=0;
-//    xctrl->Right=0;
-//    foreach (auto s, xctrl->Strategys) {
-//        xctrl->Left=qMax(xctrl->Left,s.L);
-//        xctrl->Right=qMax(xctrl->Right,s.R);
-//    }
     lname=new QLabel(xctrl->name,this);
     lname->setMaximumSize(maxSize);
     lLeftRel=new QLabel(QString::number(xctrl->Left),this);

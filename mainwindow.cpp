@@ -56,7 +56,6 @@ MainWindow::MainWindow(QWidget *parent)
             tab->addTab(new ViewState(reciver,sts),"XT:"+sts.toKey());
         }
     }
-//    tab->addTab(new ViewMessages(reciver),"Сообщения");
 
     if (ini.getBool("viewcross")){
         auto lcrs=reciver->getListCrosses();
@@ -87,24 +86,15 @@ void MainWindow::loaded()
 {
     for (int i = 0; i < tab->count(); ++i) {
         if (tab->tabText(i).contains("XT:")){
-            ViewXctrl *ct=static_cast<ViewXctrl*>(tab->widget(i));
-            ct->Update();
+            static_cast<ViewState*>(tab->widget(i))->Update();
             continue;
         }
-//        if (tab->tabText(i).contains("Сообщения")){
-//            ViewMessages *ms=static_cast<ViewMessages*>(tab->widget(i));
-//            ms->Update();
-//            continue;
-//        }
         if (tab->tabText(i).contains("Управление")){
-            ViewRegion *reg=static_cast<ViewRegion*>(tab->widget(i));
-            reg->Update();
+            static_cast<ViewRegion*>(tab->widget(i))->Update();
             continue;
         }
 
-        ViewCross *xc=static_cast<ViewCross*>(tab->widget(i));
-        xc->Update();
-
+        static_cast<ViewCross*>(tab->widget(i))->Update();
     }
 }
 
