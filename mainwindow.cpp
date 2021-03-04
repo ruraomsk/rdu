@@ -13,6 +13,10 @@ MainWindow::MainWindow(QWidget *parent)
         MainWindow::close();
         return;
     }
+    if (reciver->errorJSON.size()!=0){
+        Support::ErrorMessage("Ошибка JSON:"+reciver->errorJSON);
+    }
+
     QThread *thread=new QThread;
     reciver->moveToThread(thread);
     connect(reciver,SIGNAL(loaded()),this,SLOT(loaded()));
@@ -31,6 +35,12 @@ MainWindow::MainWindow(QWidget *parent)
         Support::ErrorMessage("Нет связи с БД");
         return;
     }
+    reader=new ReaderDevices();
+
+    QThread *threadReader=new QThread;
+    reader->moveToThread(threadReader);
+    connect(reader,SIGNAL(loaded()),this,SLOT(Deviceloaded()));
+    reader->start();
     editSetup=new QAction(QIcon(":/images/setup.png"),tr("Настройка"),this);
     editSetup->setStatusTip("Изменение настройки программы");
     connect(editSetup, SIGNAL(triggered()), this, SLOT(SetupEdit()));
@@ -48,12 +58,12 @@ MainWindow::MainWindow(QWidget *parent)
     setupMenu->addAction(exitAct);
     region=ini.getInt("region");
     tab=new QTabWidget;
-    tab->addTab(new ViewRegion(reciver,region=ini.getInt("region")),"Управление");
+    tab->addTab(new ViewRegion(reciver,reader,region=ini.getInt("region")),"Управление");
     auto lsts=reciver->getListStates();
     foreach (auto sts, lsts) {
         if(sts.region==region){
             auto st=reciver->getState(sts);
-            tab->addTab(new ViewState(reciver,sts),"XT:"+sts.toKey());
+            tab->addTab(new ViewState(reciver,reader,sts),"XT:"+sts.toKey());
         }
     }
 
@@ -91,6 +101,21 @@ void MainWindow::loaded()
         }
         if (tab->tabText(i).contains("Управление")){
             static_cast<ViewRegion*>(tab->widget(i))->Update();
+            continue;
+        }
+
+        static_cast<ViewCross*>(tab->widget(i))->Update();
+    }
+}
+void MainWindow::Deviceloaded()
+{
+    for (int i = 0; i < tab->count(); ++i) {
+        if (tab->tabText(i).contains("XT:")){
+            static_cast<ViewState*>(tab->widget(i))->DeviceUpdate();
+            continue;
+        }
+        if (tab->tabText(i).contains("Управление")){
+            static_cast<ViewRegion*>(tab->widget(i))->DeviceUpdate();
             continue;
         }
 

@@ -9,8 +9,10 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    dbase/deviceinfo.cpp \
     main.cpp \
     mainwindow.cpp \
+    reciver/readerdevices.cpp \
     reciver/reciver.cpp \
     reciver/xcross.cpp \
     setup.cpp \
@@ -19,6 +21,7 @@ SOURCES += \
     view/viewareal.cpp \
     view/viewcommand.cpp \
     view/viewcross.cpp \
+    view/viewdevice.cpp \
     view/viewmessages.cpp \
     view/viewpoints.cpp \
     view/viewregion.cpp \
@@ -36,7 +39,9 @@ SOURCES += \
 
 
 HEADERS += \
+    dbase/deviceinfo.h \
     mainwindow.h \
+    reciver/readerdevices.h \
     reciver/reciver.h \
     reciver/xcross.h \
     setup.h \
@@ -45,6 +50,7 @@ HEADERS += \
     view/viewareal.h \
     view/viewcommand.h \
     view/viewcross.h \
+    view/viewdevice.h \
     view/viewmessages.h \
     view/viewpoints.h \
     view/viewregion.h \

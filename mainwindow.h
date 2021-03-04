@@ -14,6 +14,7 @@
 #include "view/viewmessages.h"
 #include "view/viewstate.h"
 #include "view/viewregion.h"
+#include "reciver/readerdevices.h"
 
 
 #include "../streetBox/xctrl/state.h"
@@ -33,6 +34,7 @@ protected:
 
 private slots:
     void loaded();
+    void Deviceloaded();
     void ExitProgramm();
     void SetupEdit();
     void Restart();
@@ -48,6 +50,7 @@ private:
     Ui::MainWindow *ui;
         QSqlDatabase db;
         Reciver *reciver;
+        ReaderDevices *reader;
 
 };
 #endif // MAINWINDOW_H

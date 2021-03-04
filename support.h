@@ -19,6 +19,7 @@ class Support
 public:
     static void ErrorMessage(QString message);
     static void Message(QString message);
+    static QMap<int,QString> loadStatuses();
 private:
 };
 

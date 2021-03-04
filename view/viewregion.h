@@ -7,6 +7,7 @@
 #include <QTableWidget>
 #include "viewmessages.h"
 #include "reciver/reciver.h"
+#include "reciver/readerdevices.h"
 #include "../streetBox/xctrl/state.h"
 #include "setup.h"
 
@@ -17,13 +18,15 @@ class ViewRegion : public QWidget
     Q_OBJECT
 public:
     ViewRegion();
-    ViewRegion(Reciver *reciver,int region);
+    ViewRegion(Reciver *reciver,ReaderDevices *reader,int region);
 public slots:
     void Update();
+    void DeviceUpdate();
 signals:
 private:
     void table();
     Reciver *reciver;
+    ReaderDevices *reader;
     QList<State> states;
     QList<Region> regions;
     QTableWidget *wtable;

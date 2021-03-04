@@ -12,6 +12,8 @@
 #include "../setup.h"
 #include "../streetBox/xctrl/state.h"
 
+extern Setup ini;
+
 class Reciver: public QThread
 {
     Q_OBJECT
@@ -25,7 +27,9 @@ public:
     State getState(Region reg);
     QList<QString> getMessages();
     Data getData(Region reg,QString name);
+    int getEndTime(int region);
     QString error;
+    QString errorJSON;
     void restart();
 signals:
     void loaded();
@@ -53,6 +57,10 @@ private:
     bool work=false;
     QTcpSocket *socket;
     QMutex mutex;
+    QList<int> Regions;
+    QList<int> DiffTime;
+    int timeout=500;
+    bool isLoadCross;
 };
 
 #endif // RECIVER_H

@@ -27,22 +27,23 @@ void ViewResult::table()
     delete wtable;
     wtable=new QTableWidget;
     data=reciver->getData(key,name);
+    int limit=reciver->getEndTime(key.region);
     if (data.lines.size()==0) return;
-        wtable->setColumnCount(5);
-        wtable->setHorizontalHeaderItem(0,new QTableWidgetItem("Время"));
-        wtable->setHorizontalHeaderItem(1,new QTableWidgetItem("Прямой"));
-        wtable->setHorizontalHeaderItem(2,new QTableWidgetItem("Обратный"));
-        wtable->setHorizontalHeaderItem(3,new QTableWidgetItem("КС на ДК"));
-        wtable->setHorizontalHeaderItem(4,new QTableWidgetItem("Качество"));
+        wtable->setColumnCount(4);
+        wtable->setHorizontalHeaderItem(0,new QTableWidgetItem("Прямой"));
+        wtable->setHorizontalHeaderItem(1,new QTableWidgetItem("Обратный"));
+        wtable->setHorizontalHeaderItem(2,new QTableWidgetItem("КС на ДК"));
+        wtable->setHorizontalHeaderItem(3,new QTableWidgetItem("Качество"));
 
     int row=0;
     foreach (auto d, data.lines) {
+        if(d.Time>limit) break;
         wtable->insertRow(row);
-        wtable->setItem(row,0,new QTableWidgetItem(QString::asprintf("%02d:%02d",d.Time/60,d.Time%60)));
-        wtable->setItem(row,1,new QTableWidgetItem(QString::number(d.Values[0])));
-        wtable->setItem(row,2,new QTableWidgetItem(QString::number(d.Values[1])));
-        wtable->setItem(row,3,new QTableWidgetItem(QString::number(d.Values[2])));
-        wtable->setItem(row,4,new QTableWidgetItem(d.Good?"":"н/д"));
+        wtable->setVerticalHeaderItem(row,new QTableWidgetItem(QString::asprintf("%02d:%02d",d.Time/60,d.Time%60)));
+        wtable->setItem(row,0,new QTableWidgetItem(QString::number(d.Values[0])));
+        wtable->setItem(row,1,new QTableWidgetItem(QString::number(d.Values[1])));
+        wtable->setItem(row,2,new QTableWidgetItem(QString::number(d.Values[2])));
+        wtable->setItem(row,3,new QTableWidgetItem(d.Good?"":"н/д"));
         row++;
     }
     wtable->resizeColumnsToContents();

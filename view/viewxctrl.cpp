@@ -58,6 +58,7 @@ Xctrl* ViewXctrl::getXctrl()
 void ViewXctrl::Update()
 {
     vresult->Update();
+    vresultgraph->Update();
     update();
 }
 

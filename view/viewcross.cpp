@@ -29,50 +29,64 @@ void ViewCross::table()
 {
     delete wtable;
     wtable=new QTableWidget;
-    wtable->setColumnCount(xcross.Count+2);
-    QTableWidgetItem *t=new QTableWidgetItem("Время");
-    t->setCheckState(Qt::Unchecked);
-    wtable->setHorizontalHeaderItem(0,t);
+    wtable->setColumnCount(xcross.Count+1);
+    QTableWidgetItem *t;
+
     wtable->setSelectionBehavior(QAbstractItemView::SelectColumns);
     wtable->setSelectionMode(QAbstractItemView::MultiSelection);
     //    qDebug()<<checked;
-    for (int var = 1; var < xcross.Count+1; ++var) {
-        t=new QTableWidgetItem(QString::number(var));
+    for (int var = 0; var < xcross.Count; ++var) {
+        t=new QTableWidgetItem(QString::number(var+1));
         t->setCheckState(Qt::Checked);
         wtable->setHorizontalHeaderItem(var,t);
     }
     t=new QTableWidgetItem("Качество");
     t->setCheckState(Qt::Unchecked);
-    wtable->setHorizontalHeaderItem(xcross.Count+1,t);
+    wtable->setHorizontalHeaderItem(xcross.Count,t);
 
     wtable->setMaximumSize(ini.getSize("table/size"));
     for (int row = 0; row < wtable->rowCount(); ++row) {
         wtable->removeRow(row);
     }
+    QTime now=QTime::currentTime();
+    int h=now.hour()+xcross.DiffTime;
+    if (h>24) h=h%24;
+    if (h<0) h+=24;
+    int limit=h*60+now.minute();
     int row=0;
     foreach (auto var, xcross.values) {
+        if (var.Time>limit) break;
         wtable->insertRow(row);
         QString time=QString::asprintf("%02d:%02d",var.Time/60,var.Time%60);
-        wtable->setItem(row,0,new QTableWidgetItem(time));
-        for (int j = 1; j < xcross.Count+1 ; ++j) {
-            wtable->setItem(row,j,new QTableWidgetItem(QString::number(var.channels[j-1])));
+        wtable->setVerticalHeaderItem(row,new QTableWidgetItem(time));
+        for (int j = 0; j < xcross.Count ; ++j) {
+            wtable->setItem(row,j,new QTableWidgetItem(QString::number(var.channels[j])));
         }
         for (int i = 0; i < checked.size(); ++i) {
             if (checked[i]){
-                wtable->selectColumn(i+1);
+                wtable->selectColumn(i);
             }
         }
         if (var.Def){
             QString r=" ";
             for (int i = 0; i < var.goods.size(); ++i) {
-                if (!var.goods[i]) r+=QString::number(i+1)+" ";
+                if (!var.goods[i]) {
+                    r+=QString::number(i+1)+" ";
+                    wtable->item(row,i)->setBackground(Qt::red);
+
+                }
             }
-            wtable->setItem(row,xcross.Count+1,new QTableWidgetItem(r));
+            wtable->setItem(row,xcross.Count,new QTableWidgetItem(r));
 
         } else {
-            wtable->setItem(row,xcross.Count+1,new QTableWidgetItem("н/д"));
 
-        }
+            wtable->setItem(row,xcross.Count,new QTableWidgetItem("н/д"));
+            for (int i = 0; i < var.goods.size(); ++i) {
+                wtable->item(row,i)->setBackground(Qt::red);
+
+            }
+
+        };
 
         row++;
     }
@@ -147,7 +161,7 @@ void ViewCross::itemCkliked()
         checked.append(false);
     }
     foreach (auto it, wtable->selectedItems()) {
-        if (it->column()>=1&&it->column()<=xcross.Count) checked[it->column()-1]=true;
+        checked[it->column()]=true;
     }
     //    qDebug()<<checked;
     graph();

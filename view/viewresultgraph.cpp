@@ -20,6 +20,11 @@ void ViewResultGraph::Update()
 void ViewResultGraph::makeGraph()
 {
     delete wgraph;
+    auto data=reciver->getData(key,name);
+    if(data.lines.size()==0) {
+        return;
+    }
+    int limit=reciver->getEndTime(key.region);
     wgraph=new QScrollArea;
     QVBoxLayout *vbox=new QVBoxLayout;
     QWidget *local=new QWidget;
@@ -35,11 +40,10 @@ void ViewResultGraph::makeGraph()
     chart->addAxis(axisY,Qt::AlignLeft);
     QDate date=QDate::currentDate();
     int max=0;
-    auto data=reciver->getData(key,name);
-    if(data.lines.size()==0) return;
-    for (int col = 1; col < 3; ++col) {
+    for (int col = 0; col < 2; ++col) {
         QLineSeries *series=new QLineSeries;
           foreach(auto line,data.lines){
+              if (line.Time>limit) continue;
               int hour=line.Time/60;
               hour=hour==24?0:hour;
               int min=line.Time%60;
@@ -54,7 +58,7 @@ void ViewResultGraph::makeGraph()
           QDateTime dtm(date,time);
           axisX->setMin(dtm);
 
-          series->setName(col==1?"Прямое":"Обратное");
+          series->setName(col==0?"Прямое":"Обратное");
           series->setPointLabelsVisible(true);
           series->setPointLabelsFormat("@yPoint");
           chart->addSeries(series);
@@ -62,7 +66,7 @@ void ViewResultGraph::makeGraph()
           series->attachAxis(axisX);
           series->attachAxis(axisY);
     }
-    chart->legend()->hide();
+//    chart->legend()->hide();
     QChartView *viewchart=new QChartView(chart);
     viewchart->setRenderHint(QPainter::Antialiasing);
     viewchart->setMinimumSize(ini.getSize("chart/sizesmall"));

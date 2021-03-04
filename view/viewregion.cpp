@@ -5,10 +5,11 @@ ViewRegion::ViewRegion()
 
 }
 
-ViewRegion::ViewRegion(Reciver *reciver,int region)
+ViewRegion::ViewRegion(Reciver *reciver,ReaderDevices *reader,int region)
 {
     this->reciver=reciver;
     this->region=region;
+    this->reader=reader;
     regions=reciver->getListStates();
     states.clear();
     foreach (auto reg, regions) {
@@ -35,6 +36,11 @@ void ViewRegion::Update()
     }
     table();
     update();
+}
+
+void ViewRegion::DeviceUpdate()
+{
+
 }
 
 void ViewRegion::table()
@@ -68,7 +74,7 @@ void ViewRegion::table()
             else w="Не известно";
             wtable->setItem(row,4,new QTableWidgetItem(w));
             w="";
-            if (var.PKCalc==0) w="Расчет не возможен"; else w="Расчитан ПК"+QString::number(var.PKNow);
+            if (var.PKCalc==0) w="Расчет не возможен"; else w="Расчитан ПК"+QString::number(var.PKCalc);
             wtable->setItem(row,5,new QTableWidgetItem(w));
             if (var.PKNow==0) w="Управление по суточной карте"; else w="Назначен ПК"+QString::number(var.PKNow);
             wtable->setItem(row,6,new QTableWidgetItem(w));

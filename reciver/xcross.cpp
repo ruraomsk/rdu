@@ -61,6 +61,7 @@ Xcross::Xcross(QMap<QString, QVariant> map)
 {
     Step=map["Step"].toInt();
     Count=map["Count"].toInt();
+    DiffTime=map["DiffTime"].toInt();
     region=Region(map["Region"].toMap());
     foreach(auto v,map["Values"].toList()){
         values.append(Value(v.toMap()));

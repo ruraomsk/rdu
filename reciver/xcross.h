@@ -56,6 +56,7 @@ public:
     Region region;
     int Step;
     int Count;
+    int DiffTime;
     QList<Value> values;
 
 };
