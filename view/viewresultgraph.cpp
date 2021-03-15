@@ -20,12 +20,12 @@ void ViewResultGraph::Update()
 void ViewResultGraph::makeGraph()
 {
     delete wgraph;
+    wgraph=new QScrollArea;
     auto data=reciver->getData(key,name);
     if(data.lines.size()==0) {
         return;
     }
     int limit=reciver->getEndTime(key.region);
-    wgraph=new QScrollArea;
     QVBoxLayout *vbox=new QVBoxLayout;
     QWidget *local=new QWidget;
     QChart *chart=new QChart();

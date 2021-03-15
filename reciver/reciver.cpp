@@ -6,52 +6,33 @@ Reciver::Reciver()
     error="";
     isLoadCross=ini.getBool("viewcross");
     errorJSON="";
+    Shift=ini.getInt("shift");
     QString ip=ini.getString("ip");
+
     int port=ini.getInt("port");
     if (ip.size()==0) ip="127.0.0.1";
     if (port==0) port=2050;
+    if (Shift==0) Shift=40;
 
+    queue.clear();
     socket=new QTcpSocket(this);
-    socket->setReadBufferSize(1000000l);
+    socket->setSocketOption(QAbstractSocket::ReceiveBufferSizeSocketOption,QVariant(maxSize));
     socket->connectToHost(ip,port);
     if (!socket->waitForConnected(1000)){
         error="not connected "+ip+":"+QString::number(port);
         return;
     }
     work=true;
-    socket->write(QString("setup\n").toUtf8());
-    socket->flush();
-    if (socket->waitForReadyRead(timeout)){
-        QString json;
-        json=json.append(socket->readAll()).trimmed();
-        loadSetup(json);
-    } else {
-        error="not responce "+ip+":"+QString::number(port);
-        return;
-    }
-
-    QString send=QString("crosslist\n");
-    socket->write(send.toUtf8());
-    socket->flush();
-    QString json;
-    while (socket->waitForReadyRead(timeout)){
-        json=json.append(socket->readAll()).trimmed();
-    }
-    loadCrosses(json);
+    socket->setReadBufferSize(maxSize);
+    mutex.lock();
+    loadSetup();
+    loadCrosses();
     loadAllTables();
-
-    send=QString("statelist\n");
-    socket->write(send.toUtf8());
-    socket->flush();
-    json.clear();
-    while (socket->waitForReadyRead(timeout)){
-        json=json.append(socket->readAll()).trimmed();
-    }
-
-    loadStates(json);
+    loadStates();
     loadAllStates();
     loadAllDatas();
     loadAllMessages();
+    mutex.unlock();
 }
 
 Reciver::~Reciver()
@@ -65,18 +46,16 @@ void Reciver::run()
 
     while(true){
         do{
-            int minute=QTime::currentTime().minute();
-            if(minute%StepDev==0) break;
-            QThread::msleep(1000l);
-            socket->write(QString("0\n").toUtf8());
-            socket->flush();
-        } while(true);
-        loadAllTables();
-        loadAllStates();
-        loadAllDatas();
-        loadAllMessages();
-        emit loaded();
-
+            sendCmd();
+        } while((QTime::currentTime().minute()%StepDev)!=0);
+        int shift=Shift;
+        while(shift-->0){
+            sendCmd();
+        }
+        ReadAll();
+        do{
+            sendCmd();
+        } while((QTime::currentTime().minute()%StepDev)==0);
     }
 }
 
@@ -153,79 +132,110 @@ int Reciver::getEndTime(int region)
     return 0;
 }
 
+void Reciver::setCmdXTOff(State *state)
+{
+    mutex.lock();
+    reRead=true;
+    queue.enqueue(QString::asprintf("stateset,%d,%d,%d,0\n",state->Region,state->Area,state->SubArea));
+    mutex.unlock();
+}
+
+void Reciver::setCmdXTOn(State *state)
+{
+    mutex.lock();
+    reRead=true;
+    queue.enqueue(QString::asprintf("stateset,%d,%d,%d,1\n",state->Region,state->Area,state->SubArea));
+    mutex.unlock();
+}
+
+void Reciver::setCalcXTOff(State *state)
+{
+    mutex.lock();
+    reRead=true;
+    queue.enqueue(QString::asprintf("stateset,%d,%d,%d,2\n",state->Region,state->Area,state->SubArea));
+    mutex.unlock();
+
+}
+
+void Reciver::setCalcXTOn(State *state)
+{
+    mutex.lock();
+    reRead=true;
+    queue.enqueue(QString::asprintf("stateset,%d,%d,%d,3\n",state->Region,state->Area,state->SubArea));
+    mutex.unlock();
+
+}
+
+void Reciver::setCmd(int idevice, int code, int pk)
+{
+    mutex.lock();
+    queue.enqueue(QString::asprintf("devicecmd,%d,%d,%d\n",idevice,code,pk));
+    mutex.unlock();
+}
+
 void Reciver::restart()
 {
     mutex.lock();
-        socket->write(QString("restart\n").toUtf8());
-        socket->flush();
-        work=false;
+    socket->write(QString("restart\n").toUtf8());
+    socket->flush();
+    work=false;
     mutex.unlock();
+}
+
+QString Reciver::getFromServer(QString message)
+{
+    socket->write(message.toUtf8());
+    socket->flush();
+    socket->waitForBytesWritten(timeout);
+    QString json;
+    int count=0;
+    while (socket->waitForReadyRead(timeout)){
+        json=json.append(socket->readAll());
+        count++;
+        if(json.endsWith("\n")) break;
+    }
+    qDebug()<<QTime::currentTime().toString()<<message<<count<<json.size();
+    return json;
+
 }
 
 void Reciver::loadAllTables()
 {
     if(!work) return;
-    if(!isLoadCross) return;
-    int region=ini.getInt("region");
-    mutex.lock();
     foreach (auto r, listCrosses) {
-        if (r.region!=region) continue;;
-        socket->write(r.crossGet().toUtf8());
-        socket->flush();
-        QString json;
-        while (socket->waitForReadyRead(timeout)){
-            json=json.append(socket->readAll()).trimmed();
-        }
+        QString json=getFromServer(r.crossGet());
         QJsonParseError jError;
         QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
         QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
         if (jError.error!=QJsonParseError::NoError){
-            errorJSON=json+"\n"+jError.errorString();
-            mutex.unlock();
             return;
         }
         auto xc=Xcross(map);
         xcrs[xc.region.toKey()]=xc;
 
     }
-    mutex.unlock();
-//    qDebug()<<"read cancel";
-
 }
 
 void Reciver::loadAllStates()
 {
     if(!work) return;
-    int region=ini.getInt("region");
-    mutex.lock();
     foreach (auto r, listStates) {
-        if (r.region!=region) continue;;
-        socket->write(r.stateGet().toUtf8());
-        socket->flush();
-        QString json;
-        while (socket->waitForReadyRead(timeout)){
-            json=json.append(socket->readAll()).trimmed();
-        }
+        QString json=getFromServer(r.stateGet());
         QJsonParseError jError;
         QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
         QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
         if (jError.error!=QJsonParseError::NoError){
-            errorJSON=json+"\n"+jError.errorString();
-            mutex.unlock();
             return;
         }
         auto st=State(map);
         auto reg=Region(st.Region,st.Area,st.SubArea);
         sts[reg.toKey()]=st;
-
     }
-    mutex.unlock();
 }
 
 void Reciver::loadAllDatas()
 {
     if(!work) return;
-    mutex.lock();
     foreach (auto s, sts) {
         auto reg=Region(s.Region,s.Area,s.SubArea);
 
@@ -234,52 +244,67 @@ void Reciver::loadAllDatas()
         }
         datas[reg.fullKey("result")]=loadOneData(reg,"result");
     }
-    mutex.unlock();
-
 }
 
 void Reciver::loadAllMessages()
 {
     if(!work) return;
-    mutex.lock();
-        socket->write(QString("messages\n").toUtf8());
-        socket->flush();
-        QString json;
-        while (socket->waitForReadyRead(timeout)){
-            json=json.append(socket->readAll()).trimmed();
-        }
-        if (json.size()==0) {
-            mutex.unlock();
-            return;
-        }
-        QJsonParseError jError;
-        QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
-        QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
-        if (jError.error!=QJsonParseError::NoError){
-            errorJSON=json+"\n"+jError.errorString();
-            mutex.unlock();
-            return;
-        }
-        auto jarray=map["Messages"].toJsonArray();
-        listMessages.clear();
-        foreach(auto j,jarray){
-            listMessages.append(j.toString());
-        }
-//        auto xc=Xcross(map);
-//        xcrs[xc.region.toKey()]=xc;
+    QString json=getFromServer("messages\n");
+    QJsonParseError jError;
+    QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
+    QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
+    if (jError.error!=QJsonParseError::NoError){
+        return;;
+    }
+    auto jarray=map["Messages"].toJsonArray();
+    listMessages.clear();
+    foreach(auto j,jarray){
+        listMessages.append(j.toString());
+    }
+}
 
+void Reciver::sendCmd()
+{
+    mutex.lock();
+    while (true){
+        if (queue.isEmpty()) {
+            mutex.unlock();
+            break;
+        }
+        getFromServer(queue.dequeue());
+    }
+    mutex.lock();
+    bool r=false;
+    if (reRead) {
+        reRead=false;
+        r=true;
+    }
     mutex.unlock();
+    if (r) ReadAll();
+    QThread::msleep(100);
+}
+
+void Reciver::ReadAll()
+{
+    emit startWaite();
+    mutex.lock();
+    loadAllTables();
+    loadAllStates();
+    loadAllDatas();
+    loadAllMessages();
+    mutex.unlock();
+    emit endWaite();
+    emit loaded();
 
 }
 
-void Reciver::loadCrosses(QString json)
+void Reciver::loadCrosses()
 {
     if(!work) return;
+    QString json=getFromServer("crosslist\n");
     QJsonParseError jError;
     QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
     if (jError.error!=QJsonParseError::NoError){
-        errorJSON=json+"\n"+jError.errorString();
-        mutex.unlock();
         return;
     }
     QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
@@ -289,14 +314,13 @@ void Reciver::loadCrosses(QString json)
     }
 }
 
-void Reciver::loadStates(QString json)
+void Reciver::loadStates()
 {
     if(!work) return;
+    QString json=getFromServer("statelist\n");
     QJsonParseError jError;
     QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
     if (jError.error!=QJsonParseError::NoError){
-        errorJSON=json+"\n"+jError.errorString();
-        mutex.unlock();
         return;
     }
     QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
@@ -306,22 +330,21 @@ void Reciver::loadStates(QString json)
     }
 }
 
-void Reciver::loadSetup(QString json)
+void Reciver::loadSetup()
 {
     if(!work) return;
+    QString json=getFromServer("setup\n");
     QJsonParseError jError;
     QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
     if (jError.error!=QJsonParseError::NoError){
-        errorJSON=json+"\n"+jError.errorString();
-        mutex.unlock();
         return;
     }
     QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
     StepDev=map["StepDev"].toInt();
     StepCalc=map["StepCalc"].toInt();
-    ShiftDevice=map["ShiftDevice"].toString();        //Смещение от шага секунды
-    ShiftCtrl=map["ShiftCtrl"].toString();;          //Смещение для запуска управления секунды
-    ClearTime=map["ClearTime"].toString();;          //С этого момента все начинаем сначала
+    ShiftDevice=map["ShiftDevice"].toString();          //Смещение от шага секунды
+    ShiftCtrl=map["ShiftCtrl"].toString();              //Смещение для запуска управления секунды
+    ClearTime=map["ClearTime"].toString();              //С этого момента все начинаем сначала
     auto array=map["Regions"].toJsonArray();
     Regions.clear();
     DiffTime.clear();
@@ -335,18 +358,11 @@ Data Reciver::loadOneData(Region region, QString name)
 {
     Data result=Data();
     if(!work) return result ;
-    socket->write(region.dataGet(name).toUtf8());
-    socket->flush();
-    QString json;
-    while (socket->waitForReadyRead(timeout)){
-        json=json.append(socket->readAll()).trimmed();
-    }
+    QString json=getFromServer(region.dataGet(name));
     QJsonParseError jError;
     QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
     QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
     if (jError.error!=QJsonParseError::NoError){
-        errorJSON=json+"\n"+jError.errorString();
-        mutex.unlock();
         return result;
     }
     foreach(auto d,map["datas"].toList()){

@@ -1,14 +1,9 @@
-#include "viewregion.h"
+#include "viewarea.h"
 
-ViewRegion::ViewRegion()
+ViewArea::ViewArea(AreaData *area,QWidget *parent) : QWidget(parent)
 {
-
-}
-
-ViewRegion::ViewRegion(RegionData *regData)
-{
-    this->regData=regData;
-    connect(regData,&RegionData::DataUpdate,this,&ViewRegion::Update);
+    this->area=area;
+    connect(area,&AreaData::DataUpdate,this,&ViewArea::Update);
 
     wtable=new QTableWidget();
     menuBar=new QMenuBar();
@@ -39,78 +34,78 @@ ViewRegion::ViewRegion(RegionData *regData)
     table();
 }
 
-void ViewRegion::Update()
+void ViewArea::Update()
 {
     up();
     table();
     update();
 }
 
-void ViewRegion::SETPK()
+void ViewArea::SETPK()
 {
     auto cmd=CommandData();
     cmd.isSetPK=true;
     cmd.SetPK=static_cast<QAction*>(sender())->text().toInt();
-    regData->SetCommand(cmd);
+    area->SetCommand(cmd);
 }
 
-void ViewRegion::SETCK()
+void ViewArea::SETCK()
 {
     auto cmd=CommandData();
     cmd.isSetCK=true;
     cmd.SetCK=static_cast<QAction*>(sender())->text().toInt();
-    regData->SetCommand(cmd);
+    area->SetCommand(cmd);
 }
 
-void ViewRegion::SETNK()
+void ViewArea::SETNK()
 {
     auto cmd=CommandData();
     cmd.isSetNK=true;
     cmd.SetNK=static_cast<QAction*>(sender())->text().toInt();
-    regData->SetCommand(cmd);
+    area->SetCommand(cmd);
 }
 
-void ViewRegion::xtOn()
+void ViewArea::xtOn()
 {
-    if(!regData->isXT()) return;
-    if (!regData->isReadyToXT()) return;
+    if(!area->isXT()) return;
+    if (!area->isReadyToXT()) return;
     auto cmd=CommandData();
     cmd.isSetXT=true;
     cmd.setXT=true;
-    regData->SetCommand(cmd);
+    area->SetCommand(cmd);
+
 }
 
-void ViewRegion::xtOff()
+void ViewArea::xtOff()
 {
-    if(!regData->isXT()) return;
+    if(!area->isXT()) return;
     auto cmd=CommandData();
     cmd.isSetXT=true;
     cmd.setXT=false;
-    regData->SetCommand(cmd);
+    area->SetCommand(cmd);
 }
 
-
-void ViewRegion::table()
+void ViewArea::table()
 {
     delete wtable;
     wtable=new QTableWidget;
     wtable->setColumnCount(4);
-    wtable->setHorizontalHeaderItem(0,new QTableWidgetItem("Район"));
+    wtable->setHorizontalHeaderItem(0,new QTableWidgetItem("Подрайон"));
     wtable->setHorizontalHeaderItem(1,new QTableWidgetItem("Устройства"));
     wtable->setHorizontalHeaderItem(2,new QTableWidgetItem("Текущее состояние"));
     wtable->setHorizontalHeaderItem(3,new QTableWidgetItem("Состояние ХТ"));
 
     int row=0;
-    auto areas=regData->getAreas();
+    auto subareas=area->getSubAreas();
     int max=0;
-    foreach (auto sub, areas) {
-        max=sub->region.area>max?sub->region.area:max;
+    foreach (auto sub, subareas) {
+        max=sub->region.id>max?sub->region.id:max;
     }
     for (int i = 1; i <= max; ++i) {
-        foreach (auto sub, areas) {
-            if(i==sub->region.area){
+        foreach (auto sub, subareas) {
+            if(i==sub->region.id){
                 wtable->insertRow(row);
-                wtable->setItem(row,0,new QTableWidgetItem(QString::number(sub->region.area)));
+                wtable->setItem(row,0,new QTableWidgetItem(QString::number(sub->region.id)));
                 wtable->setItem(row,1,new QTableWidgetItem(sub->sayStatus()[0].replace("*","")));
                 wtable->setItem(row,2,new QTableWidgetItem(sub->sayStatus()[1].replace("*","")));
                 wtable->setItem(row,3,new QTableWidgetItem(sub->sayStatus()[2].replace("*","")));
@@ -122,14 +117,16 @@ void ViewRegion::table()
     wtable->resizeColumnsToContents();
     grid->addWidget(wtable,1,0);
 
+
 }
 
-void ViewRegion::up()
+void ViewArea::up()
 {
     QString r;
-    foreach (auto s, regData->sayStatus()) {
+    foreach (auto s, area->sayStatus()) {
         r.append(s+" ");
     }
     wdown->setMarkdown(r);
     grid->addWidget(wdown,0,0);
+
 }

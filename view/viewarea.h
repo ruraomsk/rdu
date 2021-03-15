@@ -1,27 +1,22 @@
-#ifndef VIEWREGION_H
-#define VIEWREGION_H
+#ifndef VIEWAREA_H
+#define VIEWAREA_H
 
-#include <QGridLayout>
-#include <QObject>
 #include <QWidget>
+#include <QObject>
+#include <QGridLayout>
+#include <QMenuBar>
+#include <QObject>
 #include <QTableWidget>
 #include <QTextEdit>
-#include <QMenuBar>
-#include "viewmessages.h"
-#include "reciver/reciver.h"
-#include "reciver/readerdevices.h"
-#include "../streetBox/xctrl/state.h"
-#include "dbase/regiondata.h"
-#include "setup.h"
-
-extern Setup ini;
-
-class ViewRegion : public QWidget
+#include <QWidget>
+#include <QMenu>
+#include "dbase/areadata.h"
+class ViewArea : public QWidget
 {
     Q_OBJECT
 public:
-    ViewRegion();
-    ViewRegion(RegionData *regData);
+    ViewArea(AreaData *area,QWidget *parent = nullptr);
+
 private slots:
     void Update();
     void SETPK();
@@ -41,8 +36,7 @@ private:
     QMenu *ck;
     QMenu *nk;
     QMenu *xt;
-    RegionData *regData;
-
+    AreaData *area;
 };
 
-#endif // VIEWREGION_H
+#endif // VIEWAREA_H

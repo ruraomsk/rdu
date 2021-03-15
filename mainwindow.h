@@ -14,7 +14,9 @@
 #include "view/viewmessages.h"
 #include "view/viewstate.h"
 #include "view/viewregion.h"
+#include "view/viewarea.h"
 #include "reciver/readerdevices.h"
+#include "dbase/regiondata.h"
 
 
 #include "../streetBox/xctrl/state.h"
@@ -34,23 +36,26 @@ protected:
 
 private slots:
     void loaded();
+    void busy();
+    void work();
     void Deviceloaded();
     void ExitProgramm();
     void SetupEdit();
     void Restart();
 
 private:
+    void viewMake();
     QMenu *setupMenu;
     QAction *restart;
     QAction *editSetup;
     QAction *exitAct;
     QTabWidget *tab;
-
+    QTabWidget *tabl;
     int region;
     Ui::MainWindow *ui;
-        QSqlDatabase db;
-        Reciver *reciver;
-        ReaderDevices *reader;
-
+    QSqlDatabase db;
+    Reciver *reciver;
+    ReaderDevices *reader;
+    RegionData *regData;
 };
 #endif // MAINWINDOW_H

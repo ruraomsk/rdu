@@ -6,6 +6,7 @@ ViewCross::ViewCross(Reciver *reciver, Region region)
     this->reciver=reciver;
     this->region=region;
     xcross=reciver->getCross(region);
+    checked.clear();
     for (int var = 0; var < xcross.Count; ++var) {
         checked.append(false);
     }

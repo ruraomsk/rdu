@@ -29,13 +29,17 @@ public:
     Region();
     Region(int region,int area,int id);
     Region(QMap<QString,QVariant> map);
+    Region(QString key);
     QString crossGet();
     QString stateGet();
     QString dataGet(QString name);
+    static bool Compare(Region &r1,Region &r2);
+    static bool Eq(Region &r1,Region &r2);
 
 
     QString toKey();
     QString fullKey(QString name);
+    QString shortKey();
     int region;
     int area;
     int id;

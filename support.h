@@ -13,6 +13,7 @@
 #include <QtSql>
 #include <QMessageBox>
 #include <QRandomGenerator>
+#include "reciver/xcross.h"
 class Support
 {
 
@@ -20,6 +21,8 @@ public:
     static void ErrorMessage(QString message);
     static void Message(QString message);
     static QMap<int,QString> loadStatuses();
+    static QList<Region> listSubareas(int region);
+    static QMap<QString,QString> loadRegions();
 private:
 };
 

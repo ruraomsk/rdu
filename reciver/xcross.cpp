@@ -19,16 +19,23 @@ Region::Region(QMap<QString, QVariant> map)
     id=map["ID"].toInt();
 }
 
+Region::Region(QString key)
+{
+    auto s=key.split(":");
+    if (s.size()==3) {
+        region=s[0].toInt();
+
+    }
+}
+
 QString Region::crossGet()
 {
-    QString result;
-    return result.append(QString::asprintf("crossget,%d,%d,%d\n",region,area,id));
+    return QString::asprintf("crossget,%d,%d,%d\n",region,area,id);
 }
 
 QString Region::stateGet()
 {
-    QString result;
-    return result.append(QString::asprintf("stateget,%d,%d,%d\n",region,area,id));
+    return QString::asprintf("stateget,%d,%d,%d\n",region,area,id);
 
 }
 
@@ -40,16 +47,33 @@ QString Region::dataGet(QString name)
     return result;
 }
 
+bool Region::Compare(Region &r1, Region &r2)
+{
+    if(r1.region!=r2.region) return r1.region<r2.region;
+    if(r1.area!=r2.area) return r1.area<r2.area;
+    return r1.id<r2.id;
+}
+
+bool Region::Eq(Region &r1, Region &r2)
+{
+    if(r1.region==r2.region && r1.area==r2.area && r1.id==r2.id) return true;
+    return false;
+}
+
 
 QString Region::toKey()
 {
-    QString result;
-    return result.append(QString::asprintf("%d:%d:%d",region,area,id));
+    return QString::asprintf("%d:%d:%d",region,area,id);
 }
 
 QString Region::fullKey(QString name)
 {
     return toKey().append(":"+name);
+}
+
+QString Region::shortKey()
+{
+    return QString::asprintf("%d:%d",area,id);
 }
 
 Xcross::Xcross()

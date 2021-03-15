@@ -7,7 +7,7 @@
 #include "support.h"
 #include "xcross.h"
 #include "setup.h"
-#include "../dbase/deviceinfo.h"
+#include "../dbase/devicedata.h"
 
 extern Setup ini;
 
@@ -17,14 +17,14 @@ class ReaderDevices : public QThread
 public:
     ReaderDevices();
     void addSubregion(Region region);
-    QList<DeviceInfo> getDevices(Region);
+    QList<DeviceData> getDevices(Region);
     void run() override;
 signals:
     void loaded();
 private:
     QMap<int,QString> statuses;
     QList<Region>  needLoaded;
-    QMap<QString,QList<DeviceInfo>> devices;
+    QMap<QString,QList<DeviceData>> devices;
     QMutex mutex;
     QSqlDatabase db;
 };

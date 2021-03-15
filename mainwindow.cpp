@@ -20,6 +20,10 @@ MainWindow::MainWindow(QWidget *parent)
     QThread *thread=new QThread;
     reciver->moveToThread(thread);
     connect(reciver,SIGNAL(loaded()),this,SLOT(loaded()));
+    connect(reciver,SIGNAL(startWaite()),this,SLOT(busy()));
+    connect(reciver,SIGNAL(endWaite()),this,SLOT(work()));
+
+
     reciver->start();
 
     resize(ini.getSize("window/size"));
@@ -36,7 +40,6 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
     reader=new ReaderDevices();
-
     QThread *threadReader=new QThread;
     reader->moveToThread(threadReader);
     connect(reader,SIGNAL(loaded()),this,SLOT(Deviceloaded()));
@@ -56,27 +59,9 @@ MainWindow::MainWindow(QWidget *parent)
     setupMenu->addAction(restart);
     setupMenu->addAction(editSetup);
     setupMenu->addAction(exitAct);
-    region=ini.getInt("region");
+
     tab=new QTabWidget;
-    tab->addTab(new ViewRegion(reciver,reader,region=ini.getInt("region")),"Управление");
-    auto lsts=reciver->getListStates();
-    foreach (auto sts, lsts) {
-        if(sts.region==region){
-            auto st=reciver->getState(sts);
-            tab->addTab(new ViewState(reciver,reader,sts),"XT:"+sts.toKey());
-        }
-    }
-
-    if (ini.getBool("viewcross")){
-        auto lcrs=reciver->getListCrosses();
-        foreach (auto cr, lcrs) {
-            if(cr.region==region){
-                auto c=new ViewCross(reciver,cr);
-                tab->addTab(c,cr.toKey());
-            }
-        }
-    }
-
+    viewMake();
     setCentralWidget(tab);
     show();
 }
@@ -94,33 +79,69 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::loaded()
 {
+    this->setCursor(Qt::WaitCursor);
+    regData->Update();
+    QTabWidget *tabl;
     for (int i = 0; i < tab->count(); ++i) {
-        if (tab->tabText(i).contains("XT:")){
-            static_cast<ViewState*>(tab->widget(i))->Update();
+        if (tab->tabText(i).contains("Характерные точки")){
+            tabl=static_cast<QTabWidget*>(tab->widget(i));
+            for (int j = 0; j < tabl->count(); ++j) {
+                static_cast<ViewState*>(tabl->widget(j))->Update();
+            }
             continue;
         }
         if (tab->tabText(i).contains("Управление")){
-            static_cast<ViewRegion*>(tab->widget(i))->Update();
+//            static_cast<ViewRegion*>(tab->widget(i))->Update();
             continue;
         }
-
-        static_cast<ViewCross*>(tab->widget(i))->Update();
+        //        if (tab->tabText(i).contains("Подрайоны")){
+        //            tabl=static_cast<QTabWidget*>(tab->widget(i));
+        //            for (int j = 0; j < tabl->count(); ++j) {
+        //                static_cast<ViewArea*>(tabl->widget(j))->Update();
+        //            }
+        //            continue;
+        //        }
+        if (tab->tabText(i).contains("Статистика")){
+            tabl=static_cast<QTabWidget*>(tab->widget(i));
+            for (int j = 0; j < tabl->count(); ++j) {
+                static_cast<ViewCross*>(tabl->widget(j))->Update();
+            }
+            continue;
+        }
     }
+    this->setCursor(Qt::ArrowCursor);
+}
+
+void MainWindow::busy()
+{
+    this->setCursor(Qt::WaitCursor);
+}
+
+void MainWindow::work()
+{
+    this->setCursor(Qt::ArrowCursor);
+
 }
 void MainWindow::Deviceloaded()
 {
+    //    qDebug()<<"deviceloaded start";
+    this->setCursor(Qt::WaitCursor);
+    regData->DeviceUpdate();
+//    QTabWidget *tabl;
     for (int i = 0; i < tab->count(); ++i) {
-        if (tab->tabText(i).contains("XT:")){
-            static_cast<ViewState*>(tab->widget(i))->DeviceUpdate();
+        if (tab->tabText(i).contains("Характерные точки")){
             continue;
         }
         if (tab->tabText(i).contains("Управление")){
-            static_cast<ViewRegion*>(tab->widget(i))->DeviceUpdate();
+//            static_cast<ViewRegion*>(tab->widget(i))->DeviceUpdate();
             continue;
         }
-
-        static_cast<ViewCross*>(tab->widget(i))->Update();
+        if (tab->tabText(i).contains("Подрайоны")){
+            continue;
+        }
     }
+    this->setCursor(Qt::ArrowCursor);
+    //    qDebug()<<"deviceloaded stop";
 }
 
 void MainWindow::ExitProgramm()
@@ -132,15 +153,60 @@ void MainWindow::SetupEdit()
 {
     ViewSetup vs(this);
     vs.exec();
-
+    tab->clear();
+    region=ini.getInt("region");
+    viewMake();
 }
 
 void MainWindow::Restart()
 {
+    this->setCursor(Qt::WaitCursor);
     reciver->restart();
     QThread::msleep(10000l);
+    this->setCursor(Qt::ArrowCursor);
     Support::Message("Необходимо перезапустить программу");
     ExitProgramm();
 
+}
+
+void MainWindow::viewMake()
+{
+    region=ini.getInt("region");
+    this->setCursor(Qt::WaitCursor);
+    regData=new RegionData(reciver,reader,region);
+    tab->addTab(new ViewRegion(regData),"Управление");
+    tabl=new QTabWidget;
+    auto lsts=reciver->getListStates();
+    foreach (auto sts, lsts) {
+        if(sts.region==region){
+            auto st=reciver->getState(sts);
+            tabl->addTab(new ViewState(reciver,reader,sts),"XT:"+sts.shortKey());
+        }
+    }
+    tab->addTab(tabl,"Характерные точки");
+    tabl=new QTabWidget;
+    auto listsubarea=regData->getSubAreas();
+    foreach (auto s, listsubarea) {
+        tabl->addTab(new ViewDevice(s ),"Подрайон:"+s->region.shortKey());
+    }
+    tab->addTab(tabl,"Подрайоны");
+    tabl=new QTabWidget;
+    auto listarea=regData->getAreas();
+    foreach (auto s, listarea) {
+        tabl->addTab(new ViewArea(s ),"Район:"+QString::number(s->region.area));
+    }
+    tab->addTab(tabl,"Районы");
+    tabl=new QTabWidget;
+    if (ini.getBool("viewcross")){
+        auto lcrs=reciver->getListCrosses();
+        foreach (auto cr, lcrs) {
+            if(cr.region==region){
+                auto c=new ViewCross(reciver,cr);
+                tabl->addTab(c,cr.shortKey());
+            }
+        }
+        tab->addTab(tabl,"Статистика");
+    }
+    this->setCursor(Qt::ArrowCursor);
 }
 

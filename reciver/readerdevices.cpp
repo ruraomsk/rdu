@@ -8,16 +8,22 @@ ReaderDevices::ReaderDevices()
 void ReaderDevices::addSubregion(Region region)
 {
     mutex.lock();
+    foreach (auto r, needLoaded) {
+        if (r.region==region.region && r.area==region.area && r.id==region.id) {
+            mutex.unlock();
+            return;
+        }
+    }
     needLoaded.append(region);
     mutex.unlock();
 }
 
-QList<DeviceInfo> ReaderDevices::getDevices(Region region)
+QList<DeviceData> ReaderDevices::getDevices(Region region)
 {
     mutex.lock();
     auto result=devices[region.toKey()];
     mutex.unlock();
-    std::sort(result.begin(),result.end(),DeviceInfo::Compare);
+    std::sort(result.begin(),result.end(),DeviceData::Compare);
     return result;
 }
 
@@ -25,7 +31,7 @@ void ReaderDevices::run()
 {
     int step=ini.getInt("stepDevice");
     if (step==0){
-        step=2;
+        step=5;
         ini.setInt("stepDevice",step);
     }
     db=QSqlDatabase::addDatabase("QPSQL","readerdevices");
@@ -44,11 +50,12 @@ void ReaderDevices::run()
         QThread::msleep(step*1000l);
         mutex.lock();
         foreach (auto region, needLoaded) {
-            QList<DeviceInfo> list;
-            QString w;
+            QList<DeviceData> list;
+
             QSqlQuery query(db);
-            w.append(QString::asprintf("select state from public.cross where region=%d and area=%d and subarea=%d;",region.region
-                                       ,region.area,region.id));
+            QSqlQuery device(db);
+            QString w=QString::asprintf("select state from public.cross where region=%d and area=%d and subarea=%d;",
+                                        region.region,region.area,region.id);
             query.exec(w);
             while(query.next()){
                 QString json=query.value(0).toString();
@@ -59,7 +66,20 @@ void ReaderDevices::run()
                     qDebug()<<jError.errorString();
                     return;
                 }
-                auto dev=new DeviceInfo(map);
+                auto dev=new DeviceData(map);
+                device.exec(QString::asprintf("select device from public.devices where id=%d;",dev->idevice));
+                while (device.next()){
+                    QString jsond=device.value(0).toString();
+                    QJsonParseError jErrord;
+                    QJsonDocument jdocd=QJsonDocument::fromJson(jsond.toUtf8(),&jErrord);
+                    QMap<QString, QVariant>  mapd=jdocd.toVariant().toMap();
+                    if (jErrord.error!=QJsonParseError::NoError){
+                        qDebug()<<jErrord.errorString();
+                        delete dev;
+                        return;
+                    }
+                    dev->AppendInfo(mapd);
+                }
                 dev->Status=statuses[dev->status];
                 list.append(*dev);
             }
