@@ -48,8 +48,7 @@ void Reciver::run()
         do{
             sendCmd();
         } while((QTime::currentTime().minute()%StepDev)!=0);
-        int shift=Shift;
-        while(shift-->0){
+        while(QTime::currentTime().second()<Shift){
             sendCmd();
         }
         ReadAll();
@@ -194,7 +193,7 @@ QString Reciver::getFromServer(QString message)
         count++;
         if(json.endsWith("\n")) break;
     }
-    qDebug()<<QTime::currentTime().toString()<<message<<count<<json.size();
+//    qDebug()<<QTime::currentTime().toString()<<message<<count<<json.size();
     return json;
 
 }

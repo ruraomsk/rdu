@@ -20,6 +20,7 @@ ViewXctrl::ViewXctrl(Reciver *reciver,Region region,Xctrl *xctrl,QWidget *parent
     vor->makeDiagramm();
     vpoints=new ViewPoints(xctrl);
     voroni=new ViewVoronoi(vor);
+
     grid->addWidget(voroni,0,2,2,2);
     top();
     grid->addWidget(wtop,0,1);
@@ -32,14 +33,16 @@ ViewXctrl::ViewXctrl(Reciver *reciver,Region region,Xctrl *xctrl,QWidget *parent
     tab->addTab(areal,"Области");
     auto calc=new QWidget();
     auto local=new QGridLayout();
-    local->addWidget(vresult,0,0);
-    local->addWidget(vresultgraph,0,1);
+    local->addWidget(vresultgraph,0,0);
+    local->addWidget(vresult,1,0);
     calc->setLayout(local);
     tab->addTab(calc,"Расчет");
 
     QGridLayout *maingrid=new QGridLayout(this);
     maingrid->addWidget(tab,0,1);
     setLayout(maingrid);
+    makeSpray();
+
 }
 
 QString ViewXctrl::getName()
@@ -57,9 +60,29 @@ Xctrl* ViewXctrl::getXctrl()
 
 void ViewXctrl::Update()
 {
+    makeSpray();
+
     vresult->Update();
     vresultgraph->Update();
     update();
+}
+
+void ViewXctrl::makeSpray()
+{
+    auto data=reciver->getData(region,xctrl->name);
+    int limit=reciver->getEndTime(region.region);
+    if (data.lines.size()==0) return;
+    vor->clearSpray();
+    areal->vor->clearSpray();
+    foreach (auto d, data.lines) {
+        if(d.Time>limit) break;
+        auto point=Point(d.Values[1],d.Values[0]);
+        auto name=QString::asprintf("%02d:%02d",d.Time/60,d.Time%60);
+        if (!d.Good) continue;
+        vor->addSpray(point,name);
+        areal->vor->addSpray(point,name);
+    }
+    areal->redraw();
 }
 
 

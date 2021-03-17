@@ -15,6 +15,7 @@
 #include "view/viewstate.h"
 #include "view/viewregion.h"
 #include "view/viewarea.h"
+#include "view/viewtree.h"
 #include "reciver/readerdevices.h"
 #include "dbase/regiondata.h"
 

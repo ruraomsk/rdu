@@ -45,7 +45,7 @@ void ViewCross::table()
     t->setCheckState(Qt::Unchecked);
     wtable->setHorizontalHeaderItem(xcross.Count,t);
 
-    wtable->setMaximumSize(ini.getSize("table/size"));
+//    wtable->setMaximumSize(ini.getSize("table/size"));
     for (int row = 0; row < wtable->rowCount(); ++row) {
         wtable->removeRow(row);
     }
@@ -93,7 +93,7 @@ void ViewCross::table()
     }
     wtable->resizeColumnsToContents();
     connect(wtable,SIGNAL(itemSelectionChanged()),this,SLOT(itemCkliked()));
-    grid->addWidget(wtable,0,0);
+    grid->addWidget(wtable,1,0);
 }
 
 void ViewCross::graph()
@@ -151,7 +151,7 @@ void ViewCross::graph()
     wgraph->setWidget(local);
     wgraph->setWindowTitle("График");
     wgraph->setMinimumSize(ini.getSize("chart/sizehuge"));
-    grid->addWidget(wgraph,0,1);
+    grid->addWidget(wgraph,0,0);
 }
 
 void ViewCross::itemCkliked()
@@ -162,9 +162,8 @@ void ViewCross::itemCkliked()
         checked.append(false);
     }
     foreach (auto it, wtable->selectedItems()) {
-        checked[it->column()]=true;
+        if (it->column()<checked.size()) checked[it->column()]=true;
     }
-    //    qDebug()<<checked;
     graph();
     update();
 }

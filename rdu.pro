@@ -21,7 +21,6 @@ SOURCES += \
     reciver/xcross.cpp \
     setup.cpp \
     support.cpp \
-    tree/control.cpp \
     view/bogko.cpp \
     view/viewarea.cpp \
     view/viewareal.cpp \
@@ -36,6 +35,7 @@ SOURCES += \
     view/viewsetup.cpp \
     view/viewstate.cpp \
     view/viewstrategy.cpp \
+    view/viewtree.cpp \
     view/viewvoronoi.cpp \
     view/viewxctrl.cpp \
     view/voronoi.cpp \
@@ -56,7 +56,6 @@ HEADERS += \
     reciver/xcross.h \
     setup.h \
     support.h \
-    tree/control.h \
     view/bogko.h \
     view/viewarea.h \
     view/viewareal.h \
@@ -71,6 +70,7 @@ HEADERS += \
     view/viewsetup.h \
     view/viewstate.h \
     view/viewstrategy.h \
+    view/viewtree.h \
     view/viewvoronoi.h \
     view/viewxctrl.h \
     view/voronoi.h \
@@ -87,6 +87,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+    default.txt \
     images/addXtEmpty.png \
     images/addXtFromJson.png \
     images/addcross.png \

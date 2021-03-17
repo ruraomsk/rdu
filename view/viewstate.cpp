@@ -113,7 +113,7 @@ void ViewMainState::tablend()
     wtabend=new QTableWidget;
     auto data=reciver->getData(region,"result");
     int limit=reciver->getEndTime(region.region);
-    qDebug()<<limit/60<<limit%60;
+//    qDebug()<<limit/60<<limit%60;
     if (data.lines.size()==0) return;
     wtabend->setColumnCount(3);
     wtabend->setHorizontalHeaderItem(0,new QTableWidgetItem("КС на ДК"));
@@ -131,7 +131,7 @@ void ViewMainState::tablend()
             wtabend->setItem(row,2,new QTableWidgetItem(d.Good?"":"н/д"));
             row++;
         } else {
-            qDebug()<<region.toKey()<<d.Values.size();
+//            qDebug()<<region.toKey()<<d.Values.size();
         }
     }
     wtabend->resizeColumnsToContents();

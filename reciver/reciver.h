@@ -71,7 +71,7 @@ private:
     QMutex mutex;
     QList<int> Regions;
     QList<int> DiffTime;
-    int Shift=120;
+    int Shift=50;
     int timeout=2000;
     bool isLoadCross;
     qint64 maxSize=1024*1024;

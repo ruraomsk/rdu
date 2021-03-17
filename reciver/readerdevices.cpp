@@ -63,7 +63,7 @@ void ReaderDevices::run()
                 QJsonDocument jdoc=QJsonDocument::fromJson(json.toUtf8(),&jError);
                 QMap<QString, QVariant>  map=jdoc.toVariant().toMap();
                 if (jError.error!=QJsonParseError::NoError){
-                    qDebug()<<jError.errorString();
+//                    qDebug()<<jError.errorString();
                     return;
                 }
                 auto dev=new DeviceData(map);
@@ -74,7 +74,7 @@ void ReaderDevices::run()
                     QJsonDocument jdocd=QJsonDocument::fromJson(jsond.toUtf8(),&jErrord);
                     QMap<QString, QVariant>  mapd=jdocd.toVariant().toMap();
                     if (jErrord.error!=QJsonParseError::NoError){
-                        qDebug()<<jErrord.errorString();
+//                        qDebug()<<jErrord.errorString();
                         delete dev;
                         return;
                     }

@@ -17,6 +17,7 @@ public:
     QList<AreaData *> getAreas();
     QStringList sayStatus();
     bool isXT();
+    Region region;
 signals:
     void DataUpdate();
 public slots:
@@ -27,7 +28,6 @@ private:
     QList<AreaData*> areas;
     Reciver *reciver;
     ReaderDevices *reader;
-    Region region;
     CommandData cmdlast;
 };
 

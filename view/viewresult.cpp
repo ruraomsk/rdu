@@ -47,7 +47,7 @@ void ViewResult::table()
             wtable->setItem(row,3,new QTableWidgetItem(d.Good?"":"н/д"));
             row++;
         } else {
-            qDebug()<<key.fullKey(name)<<d.Values.size();
+//            qDebug()<<key.fullKey(name)<<d.Values.size();
         }
     }
     wtable->resizeColumnsToContents();

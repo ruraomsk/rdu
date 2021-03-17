@@ -44,6 +44,7 @@ private slots:
 public:
 
 private:
+    void makeSpray();
     void top();
     Reciver *reciver;
     Xctrl *xctrl;

@@ -22,7 +22,7 @@ ViewSetup::ViewSetup(QWidget *parent) : QDialog(parent)
     hbox->addRow("Пользователь",username);
     hbox->addRow("Пароль",password);
     hbox->addRow("Код региона",regionCode);
-    hbox->addRow("Перекрестки",viewcross);
+    hbox->addRow("Статистика",viewcross);
 
 
     QPushButton *okBtn=new QPushButton("Изменить");

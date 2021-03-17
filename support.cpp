@@ -51,17 +51,31 @@ QList<Region> Support::listSubareas(int region)
     return result;
 }
 
-QMap<QString, QString> Support::loadRegions()
+QMap<int, QString> Support::loadNamesRegions()
 {
-    QMap<QString,QString> result;
+    QMap<int,QString> result;
     QSqlQuery query;
-    query.exec("select area,subarea,nameregion,namearea from public.region ;");
+    query.exec("select region,area,nameregion,namearea from public.region ;");
     while(query.next()){
-        Region key=Region(query.value(0).toInt(),query.value(1).toInt(),0);
-        result[key.toKey()]=query.value(2).toString()+":"+query.value(3).toString();
+        result[query.value(0).toInt()]=query.value(2).toString();
     }
     query.finish();
     return result;
+
+}
+
+QMap<QString, QString> Support::loadNamesAreas()
+{
+    QMap<QString,QString> result;
+    QSqlQuery query;
+    query.exec("select region,area,nameregion,namearea from public.region ;");
+    while(query.next()){
+        Region key=Region(query.value(0).toInt(),query.value(1).toInt(),0);
+        result[key.toKey()]=query.value(3).toString();
+    }
+    query.finish();
+    return result;
+
 }
 
 

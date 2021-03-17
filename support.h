@@ -22,7 +22,8 @@ public:
     static void Message(QString message);
     static QMap<int,QString> loadStatuses();
     static QList<Region> listSubareas(int region);
-    static QMap<QString,QString> loadRegions();
+    static QMap<int,QString> loadNamesRegions();
+    static QMap<QString,QString> loadNamesAreas();
 private:
 };
 
