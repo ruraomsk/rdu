@@ -11,7 +11,7 @@
 #include <QQueue>
 #include "xcross.h"
 #include "../setup.h"
-#include "../streetBox/xctrl/state.h"
+#include "streetBox/state.h"
 
 extern Setup ini;
 

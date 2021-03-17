@@ -10,7 +10,7 @@
 #include <QHeaderView>
 #include <QPushButton>
 
-#include "../streetBox/xctrl/xctrl.h"
+#include "streetBox/xctrl.h"
 #include "voronoi.h"
 #include "viewvoronoi.h"
 class ArealTable;

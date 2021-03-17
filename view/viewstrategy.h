@@ -10,7 +10,7 @@
 #include <QHeaderView>
 #include <QPushButton>
 
-#include "../streetBox/xctrl/xctrl.h"
+#include "streetBox/xctrl.h"
 class StrategyTable;
 class ViewStrategy : public QWidget
 {

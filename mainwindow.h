@@ -20,7 +20,7 @@
 #include "dbase/regiondata.h"
 
 
-#include "../streetBox/xctrl/state.h"
+#include "streetBox/state.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE

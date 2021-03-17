@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QRandomGenerator>
 
-#include "../streetBox/xctrl/xctrl.h"
+#include "streetBox/xctrl.h"
 #define MAX_W 800
 #define MAX_H 800
 

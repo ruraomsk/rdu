@@ -10,7 +10,7 @@
 #include "viewmessages.h"
 #include "reciver/reciver.h"
 #include "reciver/readerdevices.h"
-#include "../streetBox/xctrl/state.h"
+#include "streetBox/state.h"
 #include "dbase/regiondata.h"
 #include "setup.h"
 

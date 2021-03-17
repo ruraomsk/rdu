@@ -20,6 +20,9 @@ SOURCES += \
     reciver/reciver.cpp \
     reciver/xcross.cpp \
     setup.cpp \
+    streetBox/prioryty.cpp \
+    streetBox/state.cpp \
+    streetBox/xctrl.cpp \
     support.cpp \
     view/bogko.cpp \
     view/viewarea.cpp \
@@ -38,10 +41,7 @@ SOURCES += \
     view/viewtree.cpp \
     view/viewvoronoi.cpp \
     view/viewxctrl.cpp \
-    view/voronoi.cpp \
-    ../streetBox/xctrl/state.cpp \
-    ../streetBox/xctrl/prioryty.cpp \
-    ../streetBox/xctrl/xctrl.cpp
+    view/voronoi.cpp
 
 
 HEADERS += \
@@ -55,6 +55,9 @@ HEADERS += \
     reciver/reciver.h \
     reciver/xcross.h \
     setup.h \
+    streetBox/prioryty.h \
+    streetBox/state.h \
+    streetBox/xctrl.h \
     support.h \
     view/bogko.h \
     view/viewarea.h \
@@ -73,10 +76,7 @@ HEADERS += \
     view/viewtree.h \
     view/viewvoronoi.h \
     view/viewxctrl.h \
-    view/voronoi.h \
-    ../streetBox/xctrl/state.h \
-    ../streetBox/xctrl/prioryty.h \
-    ../streetBox/xctrl/xctrl.h
+    view/voronoi.h
 
 FORMS += \
     mainwindow.ui

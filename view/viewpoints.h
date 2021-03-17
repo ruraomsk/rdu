@@ -9,7 +9,7 @@
 #include <QGridLayout>
 #include <QHeaderView>
 #include <QPushButton>
-#include "../streetBox/xctrl/xctrl.h"
+#include "streetBox/xctrl.h"
 class PointsTable;
 class ViewPoints : public QWidget
 {

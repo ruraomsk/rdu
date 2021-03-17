@@ -3,7 +3,7 @@
 
 #include <reciver/readerdevices.h>
 #include <reciver/reciver.h>
-#include "../../streetBox/xctrl/state.h"
+#include "streetBox/state.h"
 #include "devicedata.h"
 
 
