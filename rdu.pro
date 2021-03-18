@@ -91,6 +91,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 DISTFILES += \
     default.txt \
     ico.rc \
+    ico.rc \
     images/addXtEmpty.png \
     images/addXtFromJson.png \
     images/addcross.png \
