@@ -2,6 +2,8 @@ QT       += core gui network sql charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+RC_FILE = ico.rc
+
 CONFIG += c++11
 
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -88,6 +90,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     default.txt \
+    ico.rc \
     images/addXtEmpty.png \
     images/addXtFromJson.png \
     images/addcross.png \
@@ -119,4 +122,5 @@ DISTFILES += \
     images/textunder.png \
     images/zoomin.png \
     images/zoomout.png \
-    rdu.ini
+    rdu.ini \
+    rduico.ico
