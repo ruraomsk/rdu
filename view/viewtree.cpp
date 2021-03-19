@@ -19,6 +19,7 @@ ViewTree::ViewTree(RegionData *regData)
 
 
     view->headerItem()->setText(0,"Выбор");
+    view->headerItem()->setText(1,"Наименование");
     view->setColumnCount(2);
     auto region=new QTreeWidgetItem;
     region->setText(0,"Регион");
